@@ -1,5 +1,9 @@
 'use strict';
 
+
+/**
+ * @description Simple event emitter implementation 
+ */
 class EventEmitter {
     constructor(namespaceDelimeter = '.') {
         this.events = {};
