@@ -6,16 +6,15 @@
  */
 class EventEmitter {
     constructor(namespaceDelimeter = '.') {
-        this.events = {};
-        this.namespaceDelimeter = namespaceDelimeter;
+        this._events = {};
+        this._namespaceDelimeter = namespaceDelimeter;
     }
 
     /**
      * Подписаться на событие
-     * @param {String} event
-     * @param {Object} context
-     * @param {Function} handler
-     * @param {Object} emitParams
+     * @param {String} event - имя события, на которое происходит подписка
+     * @param {Object} context - контекст, с которым будет вызван handler
+     * @param {Function} handler - обработчик, который будет вызван в момент совершения события
      * @returns {this}
      */
     on(event, context, handler) {
@@ -24,16 +23,18 @@ class EventEmitter {
 
     /**
      * Отписаться от события
-     * @param {String} event
-     * @param {Object} context
+     * @param {String} event - имя события, от которого хотим отписаться
+     * @param {Object} context - контекст, для которого совершаем отписку
      * @returns {this}
      */
     off(event, context) {
-        const removableEvents = Object.keys(this.events).filter(eventName =>
-            eventName === event || eventName.startsWith(event + this.namespaceDelimeter));
+        const removableEventNames = Object
+            .keys(this._events)
+            .filter(eventName =>
+                eventName === event || eventName.startsWith(event + this._namespaceDelimeter));
 
-        for (const eventName of removableEvents) {
-            this.events[eventName] = this.events[eventName]
+        for (const eventName of removableEventNames) {
+            this._events[eventName] = this._events[eventName]
                 .filter(subscription => subscription.context !== context);
         }
 
@@ -42,17 +43,17 @@ class EventEmitter {
 
     /**
      * Уведомить о событии
-     * @param {String} event
+     * @param {String} event - имя совершаемого события
      * @returns {this}
      */
     emit(event) {
         while (event) {
-            const subscriptions = this.events[event];
+            const subscriptions = this._events[event];
             if (subscriptions) {
                 this._notifySubscribers(subscriptions);
             }
 
-            event = event.substring(0, event.lastIndexOf(this.namespaceDelimeter));
+            event = this._getParentEvent(event);
         }
 
         return this;
@@ -61,26 +62,26 @@ class EventEmitter {
     /**
      * Подписаться на событие с ограничением по количеству полученных уведомлений
      * @star
-     * @param {String} event
-     * @param {Object} context
-     * @param {Function} handler
-     * @param {Number} times – сколько раз получить уведомление
+     * @param {String} event - имя события, на которое происходит подписка
+     * @param {Object} context - контекст, с которым будет вызван handler
+     * @param {Function} handler - обработчик, который будет вызван в момент совершения события
+     * @param {Number} maxCount – сколько раз получить уведомление
      * @returns {this}
      */
-    several(event, context, handler, times) {
-        if (!times || times <= 0) {
-            times = Infinity;
+    several(event, context, handler, maxCount) {
+        if (!maxCount || maxCount <= 0) {
+            maxCount = Infinity;
         }
 
-        return this._on(event, context, handler, { maxCount: times });
+        return this._on(event, context, handler, { maxCount });
     }
 
     /**
      * Подписаться на событие с ограничением по частоте получения уведомлений
      * @star
-     * @param {String} event
-     * @param {Object} context
-     * @param {Function} handler
+     * @param {String} event - имя события, на которое происходит подписка
+     * @param {Object} context - контекст, с которым будет вызван handler
+     * @param {Function} handler - обработчик, который будет вызван в момент совершения события
      * @param {Number} frequency – как часто уведомлять
      * @returns {this}
      */
@@ -93,8 +94,8 @@ class EventEmitter {
     }
 
     _on(event, context, handler, emitParams = {}) {
-        if (!this.events[event]) {
-            this.events[event] = [];
+        if (!this._events[event]) {
+            this._events[event] = [];
         }
 
         const subscription = {
@@ -105,7 +106,7 @@ class EventEmitter {
             frequency: emitParams.frequency || 1
         };
 
-        this.events[event].push(subscription);
+        this._events[event].push(subscription);
 
         return this;
     }
@@ -119,6 +120,10 @@ class EventEmitter {
             subscription.count++;
         }
     }
+
+    _getParentEvent(event) {
+        return event.substring(0, event.lastIndexOf(this._namespaceDelimeter));
+    }
 }
 
-exports.EventEmitter = EventEmitter;
+module.exports = EventEmitter;
