@@ -10,7 +10,7 @@ getEmitter.isStar = true;
 module.exports = getEmitter;
 
 /**
- * Возвращает новый emitter
+ * Возвращает новый EventEmitter
  * @returns {EventEmitter}
  */
 function getEmitter() {
