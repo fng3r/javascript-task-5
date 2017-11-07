@@ -1,6 +1,6 @@
 'use strict';
 
-const EventEmitter = require('./eventEmitter');
+const EventEmitter = require('./EventEmitter');
 
 /**
  * Сделано задание на звездочку
