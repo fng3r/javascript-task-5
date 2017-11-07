@@ -53,7 +53,8 @@ class EventEmitter {
                 this._notifySubscribers(subscriptions);
             }
 
-            event = this._getParentEvent(event);
+            const parentEvent = event.substring(0, event.lastIndexOf(this._namespaceDelimeter));
+            event = parentEvent;
         }
 
         return this;
@@ -119,10 +120,6 @@ class EventEmitter {
             }
             subscription.count++;
         }
-    }
-
-    _getParentEvent(event) {
-        return event.substring(0, event.lastIndexOf(this._namespaceDelimeter));
     }
 }
 
