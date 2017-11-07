@@ -1,6 +1,5 @@
 'use strict';
 
-
 /**
  * @description Simple event emitter implementation 
  */
@@ -83,7 +82,7 @@ class EventEmitter {
      * @param {String} event - имя события, на которое происходит подписка
      * @param {Object} context - контекст, с которым будет вызван handler
      * @param {Function} handler - обработчик, который будет вызван в момент совершения события
-     * @param {Number} frequency – как часто уведомлять
+     * @param {Number} frequency – как часто стоит уведомлять
      * @returns {this}
      */
     through(event, context, handler, frequency) {
